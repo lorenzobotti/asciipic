@@ -18,6 +18,7 @@ const chars = {
     GIOBOTTI_grayscale: "@$BWM#*oahkbdpwmZO0QCJYXzcvnxrjft/|()1{}[]-_+~<>i!lI;:,\"^`'.             ",
 }
 
+// const dots = chars.GIOBOTTI_grayscale.split('').reverse().join()
 const dots = chars.GIOBOTTI_grayscale
 // const dots = `§&%$gexocljsvtr`
 
@@ -85,6 +86,10 @@ export function canvasToAscii(
 
             if (spanGrid) {
                 const span = spanGrid.getSpan(x, y)
+                if (!span) {
+                    continue
+                }
+
                 if (options?.color) {
                     span.style.color = `rgb(${r}, ${g}, ${b})`
                 }
