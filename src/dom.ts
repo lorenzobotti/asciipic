@@ -1,4 +1,4 @@
-import { ASPECT_1_2, ASPECT_3_5, canvasToAscii, getAsciiWidth } from "./ascii"
+import { ASPECT_3_5, canvasToAscii, getAsciiWidth } from "./ascii"
 import { SpanGrid } from "./span_grid"
 import { VideoAnimation } from "./video"
 
@@ -146,7 +146,7 @@ export async function submit(event: SubmitEvent) {
             ctx(),
             media as HTMLVideoElement,
             asciiHeight,
-            ASPECT_1_2,
+            ASPECT_3_5,
             {
                 textCallback: (_s) => {
                     // textExport.textContent = s
