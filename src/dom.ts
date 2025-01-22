@@ -13,6 +13,7 @@ export const inputHeight = document.getElementById('input-height') as HTMLInputE
 export const inputDarkmode = document.getElementById('input-darkmode') as HTMLInputElement
 export const inputBold = document.getElementById('input-bold') as HTMLInputElement
 export const inputColor = document.getElementById('input-color') as HTMLInputElement
+export const inputFontSize = document.getElementById('input-font-size') as HTMLInputElement
 
 export const asciiCustom = document.getElementById('ascii-custom') as HTMLInputElement
 export const asciiDict = document.getElementById('ascii-dict') as HTMLSelectElement
@@ -66,14 +67,17 @@ function addSelectionToCustom() {
     asciiCustom.value = dict
 }
 
+inputFontSize.addEventListener('input', updateFontSize)
+inputFontSize.addEventListener('change', updateFontSize)
+function updateFontSize() {
+    const size = parseInt(inputFontSize.value) / 10
+    colorExport.style.fontSize = `${size}rem`
+}
+
 export async function submit(event: SubmitEvent) {
     event.preventDefault();
 
     const options = readForm()
-    
-    console.log(options)
-    console.log(inputColor.value)
-
     colorExport.style.fontWeight = options.bold ? 'bold' : 'normal'
 
     const file = files.files?.item(0) ?? undefined;
@@ -107,8 +111,6 @@ export async function submit(event: SubmitEvent) {
         width = image.width
         height = image.height
         
-        console.log({ width, height })
-        
         media = image
     } else if (file.type.startsWith('video')) {
         typ = 'video'
@@ -132,8 +134,6 @@ export async function submit(event: SubmitEvent) {
         width = video.videoWidth
         height = video.videoHeight
         
-        console.log({ width, height })
-
         media = video
     } else {
         throw new Error()

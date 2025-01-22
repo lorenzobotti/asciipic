@@ -59,7 +59,7 @@ export function canvasToAscii(
 
     const pixelWidth = canvas.width / asciiWidth
     const pixelHeight = canvas.height / asciiHeight
-    const dict = options?.dict ?? dots
+    const dict = (options?.dict ?? dots).split('')
 
     for (let y = 0; y < asciiHeight; y++) {
         for (let x = 0; x < asciiWidth; x++) {
@@ -71,16 +71,20 @@ export function canvasToAscii(
             )
 
             const avgColor = averageColorRect(imageData)
-            
+
             let { r, g, b } = avgColor
             if (options?.reverse) {
                 r = 255 - r
                 g = 255 - g
                 b = 255 - b
             }
-            
+
             const brightness = getBrightness(r, g, b)
-            const charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dots.length))
+            let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
+
+            if (charI >= dict.length) {
+                charI = dict.length - 1
+            }
 
             const char = dict[charI]
 
