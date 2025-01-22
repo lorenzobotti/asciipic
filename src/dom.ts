@@ -1,4 +1,4 @@
-import { ASPECT_3_5, canvasToAscii, getAsciiWidth } from "./ascii"
+import { ASPECT_3_5, canvasToAscii, chars, getAsciiWidth } from "./ascii"
 import { SpanGrid } from "./span_grid"
 import { VideoAnimation } from "./video"
 
@@ -14,6 +14,9 @@ export const inputDarkmode = document.getElementById('input-darkmode') as HTMLIn
 export const inputBold = document.getElementById('input-bold') as HTMLInputElement
 export const inputColor = document.getElementById('input-color') as HTMLInputElement
 
+export const asciiCustom = document.getElementById('ascii-custom') as HTMLInputElement
+export const asciiDict = document.getElementById('ascii-dict') as HTMLSelectElement
+
 export async function init() {
     await form.addEventListener('submit', submit)
 }
@@ -23,6 +26,7 @@ interface FormInput {
     darkMode: boolean,
     color: boolean,
     asciiHeight: number,
+    asciiDict: string,
 }
 
 function readForm(): FormInput {
@@ -31,9 +35,9 @@ function readForm(): FormInput {
         darkMode: inputDarkmode.checked,
         bold: inputBold.checked,
         color: inputColor.checked,
+        asciiDict: asciiCustom.value,
     }
 
-    alert(JSON.stringify(r))
     return r
 }
 
@@ -48,6 +52,19 @@ inputDarkmode.addEventListener('change', () => {
         document.body.classList.remove('dark')
     }
 })
+
+addSelectionToCustom()
+asciiDict.addEventListener('change', addSelectionToCustom)
+
+function addSelectionToCustom() {
+    const dict = (chars as any)[asciiDict.value] as string | undefined
+    if (!dict) {
+        return
+    }
+
+    asciiCustom.disabled = false
+    asciiCustom.value = dict
+}
 
 export async function submit(event: SubmitEvent) {
     event.preventDefault();
@@ -138,7 +155,7 @@ export async function submit(event: SubmitEvent) {
     if (typ === 'image') {
         ctx().drawImage(media, 0, 0, canvas.width, canvas.height)
 
-        canvasToAscii(canvas, asciiWidth, asciiHeight, grid, { color: true })
+        canvasToAscii(canvas, asciiWidth, asciiHeight, grid, { color: true, dict: options.asciiDict })
         // textExport.textContent = str
     } else if (typ === 'video') {
         const a = new VideoAnimation(
@@ -154,6 +171,7 @@ export async function submit(event: SubmitEvent) {
                 },
                 spanGrid: grid,
                 color: options.color,
+                dict: options.asciiDict
             }
         )
 

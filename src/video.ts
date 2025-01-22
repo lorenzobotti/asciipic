@@ -24,6 +24,7 @@ export class VideoAnimation {
             spanGrid?: SpanGrid,
 
             color?: boolean,
+            dict?: string
         }
     ) {
         // this.video.load()
@@ -57,9 +58,9 @@ export class VideoAnimation {
         const h = this.height
 
         this.context.drawImage(this.video, 0, 0, w, h)
-        
+
         if (this.options.textCallback) {
-            const s = canvasToAscii(this.canvas, this.asciiWidth, this.asciiHeight, this.options.spanGrid, { color: this.options.color })
+            const s = canvasToAscii(this.canvas, this.asciiWidth, this.asciiHeight, this.options.spanGrid, { color: this.options.color, dict: this.options.dict })
             this.options.textCallback(s)
         }
     }

@@ -1,7 +1,7 @@
 import { SpanGrid } from "./span_grid"
 import { map } from "./utils"
 
-const chars = {
+export const chars = {
     minimalist: "#+-.",
     normal: "@%#*+=-:.",
     normal2: "&$Xx+;:.",
@@ -44,10 +44,9 @@ export function canvasToAscii(
     options?: {
         color?: boolean,
         reverse?: boolean,
+        dict?: string
     },
 ) {
-    console.log(spanGrid)
-    console.log(options)
     let result = ''
 
     const ctx = canvas.getContext('2d', {
@@ -60,6 +59,7 @@ export function canvasToAscii(
 
     const pixelWidth = canvas.width / asciiWidth
     const pixelHeight = canvas.height / asciiHeight
+    const dict = options?.dict ?? dots
 
     for (let y = 0; y < asciiHeight; y++) {
         for (let x = 0; x < asciiWidth; x++) {
@@ -82,7 +82,7 @@ export function canvasToAscii(
             const brightness = getBrightness(r, g, b)
             const charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dots.length))
 
-            const char = dots[charI]
+            const char = dict[charI]
 
             if (spanGrid) {
                 const span = spanGrid.getSpan(x, y)
