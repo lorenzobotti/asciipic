@@ -24,11 +24,11 @@ export class SpanGrid {
             for (let x = 0; x < width; x++) {
                 const span = document.createElement('span')
                 span.textContent = [':', ')', ' '][Math.floor(Math.random() * 2.9)]
-                
+
                 row.push(span)
                 this.container.appendChild(span)
             }
-            
+
             this.container.appendChild(document.createElement('br'))
             this.spans.push(row)
         }
@@ -40,7 +40,9 @@ export class SpanGrid {
             || y < 0
             || y >= this.height
         ) {
-            throw new Error()
+            console.error({ x, y, width: this.width, height: this.height })
+            // throw new Error()
+            return undefined
         }
 
         return this.spans[y][x]
