@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+
+    <style>
+        html, body {
+            max-width: 100%;
+        }
+    </style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ascii</title>
+</head>
+
+<body>
+    <section id="controls">
+        <h3>ascii video thingy</h3>
+        <form id="form">
+            <label for="files">immagine:</label>
+            <input type="file" name="files" id="files" accept="image/*, video/*" bind:files />
+    
+            <br>
+            <label for="height">altezza:</label>
+            <input type="number" name="height" id="input-height" max="300" min="1" value="40">
+    
+            <br>
+            <input type="checkbox" name="bold" id="input-bold" checked>
+            <label for="bold">grassetto</label>
+
+            <br>
+            <input type="checkbox" name="color" id="input-color" checked>
+            <label for="color">colori</label>
+    
+            <br />
+            <blockquote id="error-quote" style="display: none">
+    
+            </blockquote>
+    
+            <br />
+            <input type="submit" value="carica" />
+        </form>
+    </section>
+
+    <pre id="color-export" style="font-weight: bold; /* font-size: 1rem */">
+                        +---------------+                            
+                        |    il tuo     |                 .    .     
+                        |      video    |                            
+                        |       finirà  +---+                u       
+                        |          qui!     |                        
+                        +-------------------+                        
+    </pre>
+    <div id="hidden" style="display: none;"></div>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
