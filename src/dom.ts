@@ -10,6 +10,7 @@ export const canvas = document.getElementById('canvas') as HTMLCanvasElement
 export const colorExport = document.getElementById('color-export') as HTMLPreElement
 
 export const inputHeight = document.getElementById('input-height') as HTMLInputElement
+export const inputDarkmode = document.getElementById('input-darkmode') as HTMLInputElement
 export const inputBold = document.getElementById('input-bold') as HTMLInputElement
 export const inputColor = document.getElementById('input-color') as HTMLInputElement
 
@@ -19,17 +20,34 @@ export async function init() {
 
 interface FormInput {
     bold: boolean,
+    darkMode: boolean,
     color: boolean,
     asciiHeight: number,
 }
 
 function readForm(): FormInput {
-    return {
+    const r = {
         asciiHeight: parseInt(inputHeight.value),
-        bold: inputBold.value === 'on',
-        color: inputColor.value === 'on',
+        darkMode: inputDarkmode.checked,
+        bold: inputBold.checked,
+        color: inputColor.checked,
     }
+
+    alert(JSON.stringify(r))
+    return r
 }
+
+inputDarkmode.addEventListener('change', () => {
+    const v = inputDarkmode.checked
+
+    if (v) {
+        document.body.classList.remove('light')
+        document.body.classList.add('dark')
+    } else {
+        document.body.classList.add('light')
+        document.body.classList.remove('dark')
+    }
+})
 
 export async function submit(event: SubmitEvent) {
     event.preventDefault();
