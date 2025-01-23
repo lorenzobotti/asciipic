@@ -109,6 +109,73 @@ export function canvasToAscii(
     return result
 }
 
+export function imageDataToAscii(
+    image: ImageData,
+    asciiWidth: number,
+    asciiHeight: number,
+    spanGrid?: SpanGrid,
+    options?: {
+        color?: boolean,
+        reverse?: boolean,
+        dict?: string
+    },
+) {
+    let result = ''
+
+    const pixelWidth = image.width / asciiWidth
+    const pixelHeight = image.height / asciiHeight
+    const dict = (options?.dict ?? dots).split('')
+
+    for (let y = 0; y < asciiHeight; y++) {
+        for (let x = 0; x < asciiWidth; x++) {
+            const data = image.data
+            const avgColor = averageColorRectBounded(
+                data,
+                image.width,
+                image.height,
+                Math.floor(x * pixelWidth),
+                Math.floor(y * pixelHeight),
+                Math.floor(pixelWidth),
+                Math.floor(pixelHeight),
+            )
+            
+            let { r, g, b } = avgColor
+            if (options?.reverse) {
+                r = 255 - r
+                g = 255 - g
+                b = 255 - b
+            }
+
+            const brightness = getBrightness(r, g, b)
+            let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
+
+            if (charI >= dict.length) {
+                charI = dict.length - 1
+            }
+
+            const char = dict[charI]
+
+            if (spanGrid) {
+                const span = spanGrid.getSpan(x, y)
+                if (!span) {
+                    continue
+                }
+
+                if (options?.color) {
+                    span.style.color = `rgb(${r}, ${g}, ${b})`
+                }
+                span.textContent = char
+            }
+
+            result += char
+        }
+
+        result += '\n'
+    }
+
+    return result
+}
+
 export function averageColorRect(
     rect: ImageData,
 ) {
@@ -137,6 +204,48 @@ export function averageColorRect(
     }
 
     return { r, g, b }; // Return the average color as an object
+}
+
+
+const COLOR_BYTES = 4
+const MAX_COLOR = 255
+
+export function averageColorRectBounded(
+    data: Uint8ClampedArray,
+
+    imageWidth: number,
+    imageHeight: number,
+
+    left: number,
+    top: number,
+    width: number,
+    height: number,
+) {
+    let r = 0, g = 0, b = 0;
+
+    for (let x = left; x < left + width; x++) {
+        for (let y = top; y < top + height; y--) {
+            const i = ((top - y) * imageWidth + (left + x)) * COLOR_BYTES;
+            r += data[i];
+            g += data[i + 1];
+            b += data[i + 2];
+        }
+    }
+
+    const pixelCount = data.length / COLOR_BYTES;
+    r = Math.round(r / pixelCount);
+    g = Math.round(g / pixelCount);
+    b = Math.round(b / pixelCount);
+
+    if (
+        r > MAX_COLOR
+        || g > MAX_COLOR
+        || b > MAX_COLOR
+    ) {
+        throw new Error()
+    }
+
+    return { r, g, b };
 }
 
 export function getBrightness(r: number, g: number, b: number) {
