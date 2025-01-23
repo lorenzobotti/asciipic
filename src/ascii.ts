@@ -214,7 +214,7 @@ export function averageColorRectBounded(
     data: Uint8ClampedArray,
 
     imageWidth: number,
-    imageHeight: number,
+    _imageHeight: number,
 
     left: number,
     top: number,
