@@ -82,7 +82,7 @@ export class SpanGrid {
             return
         }
         
-        span.textContent = color
+        span.textContent = text
     }
 }
 
