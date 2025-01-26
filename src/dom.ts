@@ -1,4 +1,4 @@
-import { ASPECT_3_5, canvasToAscii, chars, getAsciiWidth } from "./ascii"
+import { ASPECT_1_2, ASPECT_3_5, canvasToAscii, chars, getAsciiWidth } from "./ascii"
 import { applyEdgeDetection } from "./edge_detection"
 import { SpanGrid } from "./span_grid"
 import { VideoAnimation } from "./video"
@@ -151,7 +151,7 @@ export async function submit(event: SubmitEvent) {
     const scaledHeight = 400 / aspectRatio
 
     const asciiHeight = options.asciiHeight
-    const asciiWidth = getAsciiWidth(asciiHeight, aspectRatio, ASPECT_3_5)
+    const asciiWidth = getAsciiWidth(asciiHeight, aspectRatio, ASPECT_1_2)
 
     canvas.width = scaledWidth
     canvas.height = scaledHeight

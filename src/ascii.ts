@@ -23,7 +23,7 @@ export const chars = {
 const dots = chars.GIOBOTTI_grayscale
 // const dots = `§&%$gexocljsvtr`
 
-const MAX_BRIGHTNESS = getBrightness(255, 255, 255)
+const MAX_BRIGHTNESS = () => getBrightness(255, 255, 255)
 
 export const ASPECT_1_2 = 0.5
 export const ASPECT_3_5 = 0.6
@@ -97,16 +97,16 @@ export function imageDataToAscii(
                 Math.floor(pixelHeight),
             )
 
-            let { r, g, b } = avgColor
+            let { r, g, b, a } = avgColor
             if (options?.reverse) {
                 r = 255 - r
                 g = 255 - g
                 b = 255 - b
             }
 
-            const brightness = getBrightness(r, g, b)
-            
-            let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
+            const brightness = getBrightness(r, g, b, a)
+
+            let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS(), 0, dict.length))
 
             if (charI >= dict.length) {
                 charI = dict.length - 1
@@ -188,7 +188,7 @@ export function averageColorRectBounded(
     width: number,
     height: number,
 ) {
-    let r = 0, g = 0, b = 0;
+    let r = 0, g = 0, b = 0, a = 0;
     let count = 0;
 
     for (let x = left; x < (left + width); x++) {
@@ -198,27 +198,41 @@ export function averageColorRectBounded(
             r += data[i];
             g += data[i + 1];
             b += data[i + 2];
+            a += data[i + 2];
 
             count += 1
         }
+    }
+
+    if (a < 200) {
+        return { r: 255, g: 255, b: 255 }
     }
 
     const pixelCount = count;
     r = Math.round(r / pixelCount);
     g = Math.round(g / pixelCount);
     b = Math.round(b / pixelCount);
+    a = Math.round(a / pixelCount);
 
     if (
         r > MAX_COLOR
         || g > MAX_COLOR
         || b > MAX_COLOR
+        || a > MAX_COLOR
     ) {
         throw new Error()
     }
 
-    return { r, g, b };
+    return { r, g, b, a };
 }
 
-export function getBrightness(r: number, g: number, b: number) {
-    return Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+export function getBrightness(r: number, g: number, b: number, a?: number): number {
+    const brightness = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+
+    // TODO: transparency
+    if (a === undefined || a < 50) {
+        return brightness
+    } else {
+        return MAX_BRIGHTNESS()
+    }
 }
