@@ -42,12 +42,7 @@ export function canvasToAscii(
     asciiWidth: number,
     asciiHeight: number,
     spanGrid?: SpanGrid,
-    options?: {
-        color?: boolean,
-        reverse?: boolean,
-        dict?: string,
-        edges?: boolean,
-    },
+    options?: ImageDataToAsciiOptions,
 ) {
     const ctx = canvas.getContext('2d')
     if (!ctx) {
@@ -59,17 +54,19 @@ export function canvasToAscii(
     return imageDataToAscii(image, asciiWidth, asciiHeight, spanGrid, options)
 }
 
+export interface ImageDataToAsciiOptions {
+    color?: boolean,
+    reverse?: boolean,
+    edgeDetection?: boolean,
+    dict?: string
+}
+
 export function imageDataToAscii(
     image: ImageData,
     asciiWidth: number,
     asciiHeight: number,
     spanGrid?: SpanGrid,
-    options?: {
-        color?: boolean,
-        reverse?: boolean,
-        edgeDetection?: boolean,
-        dict?: string
-    },
+    options?: ImageDataToAsciiOptions,
 ) {
     let result = ''
 
