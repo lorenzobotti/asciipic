@@ -185,7 +185,7 @@ export async function submit(event: SubmitEvent) {
 }
 
 function ctx() {
-    const c = canvas.getContext('2d')
+    const c = canvas.getContext('2d', { willReadFrequently: true })
     if (!c) {
         throw new Error('ah!')
     }
