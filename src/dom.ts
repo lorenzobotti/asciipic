@@ -1,4 +1,5 @@
 import { ASPECT_3_5, canvasToAscii, chars, getAsciiWidth } from "./ascii"
+import { applyEdgeDetection } from "./edge_detection"
 import { SpanGrid } from "./span_grid"
 import { VideoAnimation } from "./video"
 
@@ -94,46 +95,46 @@ export async function submit(event: SubmitEvent) {
     if (file.type.startsWith('image')) {
         typ = 'image'
         const imageUrl = URL.createObjectURL(file);
-        
+
         const image = document.createElement('img')
         image.src = imageUrl
-        
+
         removeAllChildren(hidden)
         hidden.appendChild(image)
-        
+
         const loaded = new Promise<void>((resolve, reject) => {
             image.onload = () => resolve()
             image.onerror = err => reject(err)
         })
-        
+
         await loaded
-        
+
         width = image.width
         height = image.height
-        
+
         media = image
     } else if (file.type.startsWith('video')) {
         typ = 'video'
         const videoUrl = URL.createObjectURL(file);
-        
+
         const video = document.createElement('video')
         video.loop = true
         video.muted = true
         video.src = videoUrl
-        
+
         removeAllChildren(hidden)
         hidden.appendChild(video)
-        
+
         const loaded = new Promise<void>((resolve, reject) => {
             video.onloadeddata = () => resolve()
             video.onerror = err => reject(err)
         })
-        
+
         await loaded
-        
+
         width = video.videoWidth
         height = video.videoHeight
-        
+
         media = video
     } else {
         throw new Error()
@@ -146,7 +147,7 @@ export async function submit(event: SubmitEvent) {
 
     const asciiHeight = options.asciiHeight
     const asciiWidth = getAsciiWidth(asciiHeight, aspectRatio, ASPECT_3_5)
-    
+
     canvas.width = scaledWidth
     canvas.height = scaledHeight
 

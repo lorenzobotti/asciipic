@@ -1,3 +1,4 @@
+import { applyEdgeDetection } from "./edge_detection"
 import { SpanGrid } from "./span_grid"
 import { map } from "./utils"
 
@@ -44,9 +45,19 @@ export function canvasToAscii(
     options?: {
         color?: boolean,
         reverse?: boolean,
-        dict?: string
+        dict?: string,
+        edges?: boolean,
     },
 ) {
+    // DEBUG PREVIEW
+    
+    // const canvasPreview = document.createElement('canvas')
+    // canvasPreview.width = canvas.width
+    // canvasPreview.height = canvas.height
+    // document.body.appendChild(canvasPreview)
+    
+    // const ctxPreview = canvasPreview.getContext('2d')!
+
     let result = ''
 
     const ctx = canvas.getContext('2d', {
@@ -61,16 +72,26 @@ export function canvasToAscii(
     const pixelHeight = canvas.height / asciiHeight
     const dict = (options?.dict ?? dots).split('')
 
+    const wholeImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    applyEdgeDetection(wholeImageData.data, wholeImageData.width, wholeImageData.height)
+    
+    if (options?.reverse) {
+        console.log('reverse')
+    }
+
+    // ctxPreview.putImageData(wholeImageData, 0, 0)
+
     for (let y = 0; y < asciiHeight; y++) {
         for (let x = 0; x < asciiWidth; x++) {
-            const imageData = ctx.getImageData(
+            const avgColor = averageColorRectBounded(
+                wholeImageData.data,
+                canvas.width,
+                canvas.height,
                 Math.floor(x * pixelWidth),
                 Math.floor(y * pixelHeight),
                 Math.floor(pixelWidth),
                 Math.floor(pixelHeight),
             )
-
-            const avgColor = averageColorRect(imageData)
 
             let { r, g, b } = avgColor
             if (options?.reverse) {
@@ -80,6 +101,8 @@ export function canvasToAscii(
             }
 
             const brightness = getBrightness(r, g, b)
+            console.log({ x, y, brightness })
+
             let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
 
             if (charI >= dict.length) {
@@ -106,6 +129,7 @@ export function canvasToAscii(
         result += '\n'
     }
 
+    console.log(result)
     return result
 }
 
@@ -119,18 +143,17 @@ export function imageDataToAscii(
         reverse?: boolean,
         dict?: string
     },
-) {
+) {    
     let result = ''
-
+    
     const pixelWidth = image.width / asciiWidth
     const pixelHeight = image.height / asciiHeight
     const dict = (options?.dict ?? dots).split('')
 
     for (let y = 0; y < asciiHeight; y++) {
         for (let x = 0; x < asciiWidth; x++) {
-            const data = image.data
             const avgColor = averageColorRectBounded(
-                data,
+                image.data,
                 image.width,
                 image.height,
                 Math.floor(x * pixelWidth),
@@ -222,17 +245,21 @@ export function averageColorRectBounded(
     height: number,
 ) {
     let r = 0, g = 0, b = 0;
+    let count = 0;
 
-    for (let x = left; x < left + width; x++) {
-        for (let y = top; y < top + height; y--) {
-            const i = ((top - y) * imageWidth + (left + x)) * COLOR_BYTES;
+    for (let x = left; x < (left + width); x++) {
+        for (let y = top; y > (top - height); y--) {
+            const i = (y * imageWidth + x) * COLOR_BYTES;
+
             r += data[i];
             g += data[i + 1];
             b += data[i + 2];
+
+            count += 1
         }
     }
 
-    const pixelCount = data.length / COLOR_BYTES;
+    const pixelCount = count;
     r = Math.round(r / pixelCount);
     g = Math.round(g / pixelCount);
     b = Math.round(b / pixelCount);
