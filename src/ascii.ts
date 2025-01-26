@@ -49,88 +49,14 @@ export function canvasToAscii(
         edges?: boolean,
     },
 ) {
-    // DEBUG PREVIEW
-    
-    // const canvasPreview = document.createElement('canvas')
-    // canvasPreview.width = canvas.width
-    // canvasPreview.height = canvas.height
-    // document.body.appendChild(canvasPreview)
-    
-    // const ctxPreview = canvasPreview.getContext('2d')!
-
-    let result = ''
-
-    const ctx = canvas.getContext('2d', {
-        willReadFrequently: true,
-    })
-
+    const ctx = canvas.getContext('2d')
     if (!ctx) {
         throw new Error()
     }
 
-    const pixelWidth = canvas.width / asciiWidth
-    const pixelHeight = canvas.height / asciiHeight
-    const dict = (options?.dict ?? dots).split('')
+    const image = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
-    const wholeImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-    applyEdgeDetection(wholeImageData.data, wholeImageData.width, wholeImageData.height)
-    
-    if (options?.reverse) {
-        console.log('reverse')
-    }
-
-    // ctxPreview.putImageData(wholeImageData, 0, 0)
-
-    for (let y = 0; y < asciiHeight; y++) {
-        for (let x = 0; x < asciiWidth; x++) {
-            const avgColor = averageColorRectBounded(
-                wholeImageData.data,
-                canvas.width,
-                canvas.height,
-                Math.floor(x * pixelWidth),
-                Math.floor(y * pixelHeight),
-                Math.floor(pixelWidth),
-                Math.floor(pixelHeight),
-            )
-
-            let { r, g, b } = avgColor
-            if (options?.reverse) {
-                r = 255 - r
-                g = 255 - g
-                b = 255 - b
-            }
-
-            const brightness = getBrightness(r, g, b)
-            console.log({ x, y, brightness })
-
-            let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
-
-            if (charI >= dict.length) {
-                charI = dict.length - 1
-            }
-
-            const char = dict[charI]
-
-            if (spanGrid) {
-                const span = spanGrid.getSpan(x, y)
-                if (!span) {
-                    continue
-                }
-
-                if (options?.color) {
-                    span.style.color = `rgb(${r}, ${g}, ${b})`
-                }
-                span.textContent = char
-            }
-
-            result += char
-        }
-
-        result += '\n'
-    }
-
-    console.log(result)
-    return result
+    return imageDataToAscii(image, asciiWidth, asciiHeight, spanGrid, options)
 }
 
 export function imageDataToAscii(
@@ -141,27 +67,39 @@ export function imageDataToAscii(
     options?: {
         color?: boolean,
         reverse?: boolean,
+        edgeDetection?: boolean,
         dict?: string
     },
-) {    
+) {
     let result = ''
-    
+
     const pixelWidth = image.width / asciiWidth
     const pixelHeight = image.height / asciiHeight
     const dict = (options?.dict ?? dots).split('')
 
+    // const wholeImageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    let edgesData: ImageData | undefined = undefined
+
+    if (options?.edgeDetection) {
+        edgesData = cloneImageData(image)
+        applyEdgeDetection(edgesData.data, edgesData.width, edgesData.height)
+    }
+
+
     for (let y = 0; y < asciiHeight; y++) {
         for (let x = 0; x < asciiWidth; x++) {
+            const sourceImage = edgesData ?? image
+
             const avgColor = averageColorRectBounded(
-                image.data,
-                image.width,
-                image.height,
+                sourceImage.data,
+                sourceImage.width,
+                sourceImage.height,
                 Math.floor(x * pixelWidth),
                 Math.floor(y * pixelHeight),
                 Math.floor(pixelWidth),
                 Math.floor(pixelHeight),
             )
-            
+
             let { r, g, b } = avgColor
             if (options?.reverse) {
                 r = 255 - r
@@ -170,6 +108,7 @@ export function imageDataToAscii(
             }
 
             const brightness = getBrightness(r, g, b)
+            
             let charI = Math.floor(map(brightness, 0, MAX_BRIGHTNESS, 0, dict.length))
 
             if (charI >= dict.length) {
@@ -197,6 +136,14 @@ export function imageDataToAscii(
     }
 
     return result
+}
+
+function cloneImageData(i: ImageData) {
+    return new ImageData(
+        new Uint8ClampedArray(i.data),
+        i.width,
+        i.height
+    )
 }
 
 export function averageColorRect(
