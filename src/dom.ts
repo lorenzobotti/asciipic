@@ -171,13 +171,12 @@ export async function submit(event: SubmitEvent) {
             asciiHeight,
             ASPECT_3_5,
             {
+                ...options,
                 textCallback: (_s) => {
                     // textExport.textContent = s
                     Date.now()
                 },
                 spanGrid: grid,
-                color: options.color,
-                dict: options.asciiDict
             }
         )
 

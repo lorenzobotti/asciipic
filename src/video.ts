@@ -1,5 +1,12 @@
-import { canvasToAscii, getAsciiWidth } from "./ascii"
+import { canvasToAscii, getAsciiWidth, ImageDataToAsciiOptions } from "./ascii"
 import { SpanGrid } from "./span_grid"
+
+export interface VideoAnimationOptions extends ImageDataToAsciiOptions {
+    width?: number,
+    height?: number,
+    spanGrid?: SpanGrid,
+    textCallback?: (s: string) => void,
+}
 
 export class VideoAnimation {
     width: number
@@ -17,15 +24,7 @@ export class VideoAnimation {
         private asciiHeight: number,
         private charAspectRatio: number,
 
-        private options: {
-            width?: number,
-            height?: number,
-            textCallback?: (s: string) => void,
-            spanGrid?: SpanGrid,
-
-            color?: boolean,
-            dict?: string
-        }
+        private options: VideoAnimationOptions,
     ) {
         // this.video.load()
         this.video.play()
@@ -60,7 +59,7 @@ export class VideoAnimation {
         this.context.drawImage(this.video, 0, 0, w, h)
 
         if (this.options.textCallback) {
-            const s = canvasToAscii(this.canvas, this.asciiWidth, this.asciiHeight, this.options.spanGrid, { color: this.options.color, dict: this.options.dict })
+            const s = canvasToAscii(this.canvas, this.asciiWidth, this.asciiHeight, this.options.spanGrid, this.options)
             this.options.textCallback(s)
         }
     }
