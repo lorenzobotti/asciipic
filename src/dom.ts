@@ -14,6 +14,7 @@ export const inputHeight = document.getElementById('input-height') as HTMLInputE
 export const inputDarkmode = document.getElementById('input-darkmode') as HTMLInputElement
 export const inputBold = document.getElementById('input-bold') as HTMLInputElement
 export const inputColor = document.getElementById('input-color') as HTMLInputElement
+export const inputEdge = document.getElementById('input-edge') as HTMLInputElement
 export const inputFontSize = document.getElementById('input-font-size') as HTMLInputElement
 
 export const asciiCustom = document.getElementById('ascii-custom') as HTMLInputElement
@@ -27,6 +28,7 @@ interface FormInput {
     bold: boolean,
     darkMode: boolean,
     color: boolean,
+    edgeDetection: boolean,
     asciiHeight: number,
     asciiDict: string,
 }
@@ -37,8 +39,11 @@ function readForm(): FormInput {
         darkMode: inputDarkmode.checked,
         bold: inputBold.checked,
         color: inputColor.checked,
+        edgeDetection: inputEdge.checked,
         asciiDict: asciiCustom.value,
     }
+
+    console.log(r)
 
     return r
 }
