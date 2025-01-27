@@ -1,14 +1,22 @@
 import { removeChildren } from "./utils"
 
+export interface Color {
+    r: number,
+    g: number,
+    b: number,
+}
 
 export interface CharGrid {
     width: () => number,
     height: () => number,
 
-    setColor: (x: number, y: number, color: string) => void,
+    getColor: (x: number, y: number) => string,
+    getText: (x: number, y: number) => string,
+
+    setColor: (x: number, y: number, color: Color) => void,
     setText: (x: number, y: number, text: string) => void,
 }
-export class SpanGrid {
+export class SpanGrid implements CharGrid {
     private spans: HTMLSpanElement[][]
 
     constructor(
@@ -48,7 +56,7 @@ export class SpanGrid {
     width() {
         return this._width
     }
-    
+
     height() {
         return this._height
     }
@@ -67,21 +75,39 @@ export class SpanGrid {
         return this.spans[y][x]
     }
 
-    setColor(x: number, y: number, color: string) {
+    getColor(x: number, y: number) {
+        const span = this.getSpan(x, y)
+        if (!span) {
+            throw new Error()
+        }
+
+        return getComputedStyle(span).color
+    }
+
+    setColor(x: number, y: number, color: Color) {
         const span = this.getSpan(x, y)
         if (!span) {
             return
         }
-        
-        span.style.color = color
+
+        span.style.color = `rgb(${color.r}, ${color.g}, ${color.b})`
     }
-    
+
+    getText(x: number, y: number) {
+        const span = this.getSpan(x, y)
+        if (!span) {
+            throw new Error()
+        }
+
+        return span.textContent ?? ''
+    }
+
     setText(x: number, y: number, text: string) {
         const span = this.getSpan(x, y)
         if (!span) {
             return
         }
-        
+
         span.textContent = text
     }
 }

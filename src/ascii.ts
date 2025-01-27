@@ -1,5 +1,5 @@
 import { applyEdgeDetection } from "./edge_detection"
-import { SpanGrid } from "./span_grid"
+import { CharGrid, SpanGrid } from "./span_grid"
 import { map } from "./utils"
 
 export const chars = {
@@ -65,7 +65,7 @@ export function imageDataToAscii(
     image: ImageData,
     asciiWidth: number,
     asciiHeight: number,
-    spanGrid?: SpanGrid,
+    spanGrid?: CharGrid,
     options?: ImageDataToAsciiOptions,
 ) {
     let result = ''
@@ -115,15 +115,10 @@ export function imageDataToAscii(
             const char = dict[charI]
 
             if (spanGrid) {
-                const span = spanGrid.getSpan(x, y)
-                if (!span) {
-                    continue
-                }
-
+                spanGrid.setText(x, y, char)
                 if (options?.color) {
-                    span.style.color = `rgb(${r}, ${g}, ${b})`
+                    spanGrid.setColor(x, y, { r, g, b })
                 }
-                span.textContent = char
             }
 
             result += char
@@ -193,7 +188,7 @@ export function averageColorRectBounded(
 
     for (let x = left; x < (left + width); x++) {
         for (let y = top; y > (top - height); y--) {
-            const i = (y * imageWidth + x) * COLOR_BYTES;
+            const i = imageCoord(x, y, imageWidth);
 
             r += data[i];
             g += data[i + 1];
@@ -226,13 +221,18 @@ export function averageColorRectBounded(
     return { r, g, b, a };
 }
 
+export function imageCoord(x: number, y: number, imageWidth: number,) {
+    return (y * imageWidth + x) * COLOR_BYTES
+}
+
 export function getBrightness(r: number, g: number, b: number, a?: number): number {
     const brightness = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+    return brightness
 
     // TODO: transparency
-    if (a === undefined || a < 50) {
-        return brightness
-    } else {
-        return MAX_BRIGHTNESS()
-    }
+    // if (a === undefined || a < 50) {
+    //     return brightness
+    // } else {
+    //     return MAX_BRIGHTNESS()
+    // }
 }
